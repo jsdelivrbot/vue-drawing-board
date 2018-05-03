@@ -1,16 +1,25 @@
 <script>
-export default {
+import Vue from "vue";
+const Base = Vue.extend({
     name: "app",
+    
     data() {
         return {
         };
     },
+    props: {
+        evb:Object
+    },
     created() {
-        // TODO regist 默认的control  换周期
-        // regist('pen',ControlPen);
+        console.log('baseeeee')
+        this.evb.$on('containerMounted',container=>{
+            this.$emit('containerMounted',container);
+        });
     },
     mounted() {
-        
+        console.log('baseeeee1111111')
     }
-};
+});
+
+export default Base;
 </script>

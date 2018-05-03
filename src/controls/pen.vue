@@ -6,63 +6,60 @@
 </template>
 
 <script>
-// import Base from "../control-base/base.vue";
-import Vue from "vue";
+import Base from "../control-base/base.vue";
+// import Vue from "vue";
 import ControlPlugin from "../control-base/index";
-const Component = Vue.extend({
+const Component = Base.extend({
     data() {
         return {};
     },
     props: {
-        container: Object,
-        event:Object
+        container: Object
     },
     methods: {},
     created() {
+        console.log("sonnnnn");
         // TODO regist 默认的control  换周期
         // regist('pen',ControlPen);
     },
     mounted() {
         console.log("mounted", this.container.current.layer);
-        this.event.$on("containerMounted", container => {
-            debugger;
-            console.log("containerMounted", container.current.layer);
+        this.$on("containerMounted", container => {
+            const current = container.current;
+            const layer = current.layer;
+            const ctx = layer.getContext();
+            const stage = current.stage;
+
+            ctx.strokeStyle = "#df4b26";
+            ctx.lineJoin = "round";
+            ctx.lineWidth = 5;
+            ctx.globalCompositeOperation = "source-over";
+
+            stage.on("mousedown", () => {
+                this.isDrawing = true;
+                this.lastPoint = stage.getPointerPosition();
+                console.log(this.lastPoint);
+            });
+
+            stage.on("mousemove", () => {
+                if (!this.isDrawing) {
+                    return;
+                }
+
+                // ctx.beginPath();
+                ctx.moveTo(this.lastPoint.x, this.lastPoint.y);
+
+                this.lastPoint = stage.getPointerPosition();
+
+                ctx.lineTo(this.lastPoint.x, this.lastPoint.y);
+                // ctx.closePath();
+                ctx.stroke();
+            });
+
+            stage.on("mouseup", () => {
+                this.isDrawing = false;
+            });
         });
-
-        // const current = this.container.current;
-        // const layer = current.layer;
-        // const ctx = layer.getContext();
-        // const stage = current.stage;
-
-        // ctx.strokeStyle = "#df4b26";
-        // ctx.lineJoin = "round";
-        // ctx.lineWidth = 5;
-        // ctx.globalCompositeOperation = 'source-over';
-
-        // stage.on("mousedown", () => {
-        //     this.isDrawing = true;
-        //     this.lastPoint = stage.getPointerPosition();
-        //     console.log(this.lastPoint);
-        // });
-
-        // stage.on("mousemove", () => {
-        //     if(!this.isDrawing){
-        //         return;
-        //     }
-
-        //     // ctx.beginPath();
-        //     ctx.moveTo(this.lastPoint.x,this.lastPoint.y);
-
-        //     this.lastPoint = stage.getPointerPosition();
-
-        //     ctx.lineTo(this.lastPoint.x,this.lastPoint.y);
-        //     // ctx.closePath();
-        //     ctx.stroke();
-        // });
-
-        // stage.on("mouseup", () => {
-        //     this.isDrawing = false;
-        // });
     }
 });
 
