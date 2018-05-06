@@ -1,8 +1,9 @@
 <template>
     <control-group>
         <control @click="onUndo">
-            <div slot="symbol"><</div>
-            <div slot="text">undo</div>
+            <div slot="symbol">
+                <</div>
+                    <div slot="text">undo</div>
         </control>
         <control @click="onRedo">
             <div slot="symbol">></div>
@@ -24,71 +25,96 @@ const Component = Base.extend({
     },
     methods: {
         onUndo(evt) {
-            this.history.undo((current,prev)=>{
-                this.diffLayers(current,prev,(layer)=>{
+            this.history.undo((current, prev) => {
+                debugger;
+                this.diffLayers(current, prev, layer => {
                     this.restoreLayer(layer);
                 });
             });
         },
         onRedo(evt) {
-            this.history.redo((current,prev)=>{
-                this.diffLayers(current,prev,(layer)=>{
+            this.history.redo((current, prev) => {
+                this.diffLayers(current, prev, layer => {
                     this.restoreLayer(layer);
                 });
             });
         },
-        diffLayers(current,prev,callback){
-            current.layers.forEach((layer,i) => {
-                if(layer.data !== prev.layers[i].data){
+        diffLayers(current, prev, callback) {
+            current.layers.forEach((layer, i) => {
+                if (layer.image.src !== prev.layers[i].image.src) {
                     callback(layer);
                 }
             });
         },
-        restoreLayer(layer){
+        restoreLayer(layer) {
             // draw data
-            layer.elem.draw(layer.data);
+            layer.context.clearRect(
+                0,
+                0,
+                layer.elem.width(),
+                layer.elem.width()
+            );
+            layer.context.drawImage(layer.image, 0, 0);
+            layer.elem.draw();
+            // layer.elem.draw(layer.image);
         },
-        generateLayerObj(layer){
-            // 根据类型类做不同的处理
-            const data = layer.elem.toDataURL();
-            return Object.assign({},layer,{
-                data:data
+        generateLayerObj(layer) {
+            const promise = new Promise((resolve, reject) => {
+                // 根据类型类做不同的处理
+                layer.elem.toImage({
+                    callback(image) {
+                        const ret = Object.assign({}, layer, {
+                            image: image
+                        });         
+
+                        resolve(ret);
+                    }
+                });
             });
+
+            return promise;
         },
-        getInitState(){
-            const layer = this.container.current.layer;
-            const layers = [];
+        getInitState:async function(){
+            const state = {
+                layers: []
+            };
 
-            const obj = Object.assign({},layer,{
-                data:layer.elem.toDataURL()
-            });
+            const theLayer = await this.generateLayerObj(this.container.current.layer);
 
-            layers.push(obj);
+            // if doesn't have some layers,use now layer status , and generate new object TODO
+            state.layers.push(theLayer);
 
-            return {
-                layers:layers
-            }
+            return state;
+        },
+        getCurState:async function(obj){
+            const state = {
+                layers: []
+            };
+
+            const theLayer = await this.generateLayerObj(obj.layers[0]);
+
+            // if doesn't have some layers,use now layer status , and generate new object TODO
+            state.layers.push(theLayer);
+
+            return state;
         }
     },
     created() {
-        this.history = new SimpleUndo({maxLength: 10});
+        this.history = new SimpleUndo({ maxLength: 10 });
 
-        this.evb.$on('saveHistory',(obj)=>{
-            const state = {
-                layers:[]
-            }
-
-            // if doesn't have some layers,use now layer status , and generate new object TODO
-            state.layers.push(this.generateLayerObj(obj.layers[0]));
+        this.evb.$on("saveHistory", async obj => {
+            const state = await this.getCurState(obj);
 
             // save state to history
             this.history.save(state);
         });
     },
     mounted() {
-        this.$on("containerMounted", container => {
+        this.$on("containerMounted", async container => {
+            debugger;
+            const state = await this.getInitState();
             // history 初始化 TODO
-            this.history.initialize(this.getInitState());
+            this.history.initialize(state);
         });
     }
 });

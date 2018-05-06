@@ -25,7 +25,7 @@ const Component = Base.extend({
             const current = container.current;
             const stage = current.stage.elem;
             const layer = current.layer.elem;
-            const ctx = layer.getContext();
+            const ctx = current.layer.context;
 
 // TODO 是否一开始就激活
             ctx.strokeStyle = "#df4b26";
