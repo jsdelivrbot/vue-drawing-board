@@ -18,18 +18,16 @@ const Component = Base.extend({
     },
     methods: {},
     created() {
-        console.log("sonnnnn");
-        // TODO regist 默认的control  换周期
-        // regist('pen',ControlPen);
+
     },
     mounted() {
-        console.log("mounted", this.container.current.layer);
         this.$on("containerMounted", container => {
             const current = container.current;
-            const layer = current.layer;
+            const stage = current.stage.elem;
+            const layer = current.layer.elem;
             const ctx = layer.getContext();
-            const stage = current.stage;
 
+// TODO 是否一开始就激活
             ctx.strokeStyle = "#df4b26";
             ctx.lineJoin = "round";
             ctx.lineWidth = 5;
@@ -46,18 +44,23 @@ const Component = Base.extend({
                     return;
                 }
 
-                // ctx.beginPath();
+                ctx.beginPath();
                 ctx.moveTo(this.lastPoint.x, this.lastPoint.y);
 
                 this.lastPoint = stage.getPointerPosition();
 
                 ctx.lineTo(this.lastPoint.x, this.lastPoint.y);
-                // ctx.closePath();
+                ctx.closePath();
                 ctx.stroke();
+
+                layer.draw();
             });
 
             stage.on("mouseup", () => {
                 this.isDrawing = false;
+                this.evb.$emit('saveHistory',{
+                    layers:[this.container.current.layer]
+                });
             });
         });
     }

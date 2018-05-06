@@ -1,5 +1,5 @@
 <template>
-    <div class="control">
+    <div class="control" @click="$emit('click',$event)">
         <div class="main">
             <div class="symbol">
                 <slot name="symbol">

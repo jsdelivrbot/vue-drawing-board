@@ -11,6 +11,8 @@
                 </div>
             </control> -->
             <control-pen :container="this" :evb="evb"></control-pen>
+            <control-eraser :container="this" :evb="evb"></control-eraser>
+            <control-history :container="this" :evb="evb"></control-history>
             <!-- <control-colors :colors="opts.colors.colors"></control-colors> -->
         </div>
         <div class="stages">
@@ -21,7 +23,10 @@
 
 <script>
 import ControlPen from './controls/pen.vue';
+import ControlEraser from './controls/eraser.vue';
+import ControlHistory from './controls/history.vue';
 import Vue from 'vue';
+import Konva from 'konva';
 
 const Component = Vue.extend({
     name: "app",
@@ -39,6 +44,8 @@ const Component = Vue.extend({
     },
     beforeCreate(){
         Component.registControl('pen',ControlPen);
+        Component.registControl('eraser',ControlEraser);
+        Component.registControl('history',ControlHistory);
     },
     created() {
     },
@@ -54,39 +61,9 @@ const Component = Vue.extend({
 
         stage.add(layer);
 
-        this.current.stage = stage;
-        this.current.layer = layer;
+        this.current.stage = {elem:stage};
+        this.current.layer = {elem:layer};
         this.evb.$emit('containerMounted',this);
-        // ctx.strokeStyle = "#df4b26";
-        // ctx.lineJoin = "round";
-        // ctx.lineWidth = 5;
-        // ctx.globalCompositeOperation = 'source-over';
-
-        // stage.on("mousedown", () => {
-        //     this.isDrawing = true;
-        //     this.lastPoint = stage.getPointerPosition();
-        //     console.log(this.lastPoint);
-        // });
-
-        // stage.on("mousemove", () => {
-        //     if(!this.isDrawing){
-        //         return;
-        //     }
-
-
-        //     // ctx.beginPath();
-        //     ctx.moveTo(this.lastPoint.x,this.lastPoint.y);
-
-        //     this.lastPoint = stage.getPointerPosition();
-
-        //     ctx.lineTo(this.lastPoint.x,this.lastPoint.y);
-        //     // ctx.closePath();
-        //     ctx.stroke();
-        // });
-
-        // stage.on("mouseup", () => {
-        //     this.isDrawing = false;
-        // });
     }
 });
 
