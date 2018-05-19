@@ -1,13 +1,18 @@
 <template>
-    <control>
-        <div slot="symbol">**</div>
-        <div slot="text">笔</div>
-    </control>
+    <control-group>
+        <control @click="onPenClick">
+            <div slot="symbol">**</div>
+            <div slot="text">笔</div>
+        </control>
+        <control @click="onEraserClick">
+            <div slot="symbol">xp</div>
+            <div slot="text">橡皮</div>
+        </control>
+    </control-group>
 </template>
 
 <script>
 import Base from "../control-base/base.vue";
-// import Vue from "vue";
 import ControlPlugin from "../control-base/index";
 const Component = Base.extend({
     data() {
@@ -16,18 +21,25 @@ const Component = Base.extend({
     props: {
         container: Object
     },
-    methods: {},
-    created() {
-
+    methods: {
+        onPenClick(){
+            const ctx = this.container.current.layer.context;
+            ctx.globalCompositeOperation = "source-over";
+        },
+        onEraserClick(){
+            const ctx = this.container.current.layer.context;
+            ctx.globalCompositeOperation = "destination-out";
+        }
     },
+    created() {},
     mounted() {
         this.$on("containerMounted", container => {
             const current = container.current;
-            const stage = current.stage.elem;
-            const layer = current.layer.elem;
+            const stage = current.stage.node;
+            const layer = current.layer.node;
             const ctx = current.layer.context;
 
-// TODO 是否一开始就激活
+            // TODO 是否一开始就激活
             ctx.strokeStyle = "#df4b26";
             ctx.lineJoin = "round";
             ctx.lineWidth = 5;
@@ -58,8 +70,8 @@ const Component = Base.extend({
 
             stage.on("mouseup", () => {
                 this.isDrawing = false;
-                this.evb.$emit('saveHistory',{
-                    layers:[this.container.current.layer]
+                this.evb.$emit("saveHistory", {
+                    layers: [this.container.current.layer]
                 });
             });
         });

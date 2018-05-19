@@ -51,17 +51,17 @@ const Component = Base.extend({
             layer.context.clearRect(
                 0,
                 0,
-                layer.elem.width(),
-                layer.elem.width()
+                layer.node.width(),
+                layer.node.width()
             );
             layer.context.drawImage(layer.image, 0, 0);
-            layer.elem.draw();
-            // layer.elem.draw(layer.image);
+            layer.node.draw();
+            // layer.node.draw(layer.image);
         },
         generateLayerObj(layer) {
             const promise = new Promise((resolve, reject) => {
                 // 根据类型类做不同的处理
-                layer.elem.toImage({
+                layer.node.toImage({
                     callback(image) {
                         const ret = Object.assign({}, layer, {
                             image: image

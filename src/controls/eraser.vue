@@ -18,8 +18,8 @@ const Component = Base.extend({
     methods: {
         onClick(evt){
             const current = this.container.current;
-            const stage = current.stage.elem;
-            const layer = current.layer.elem;
+            const stage = current.stage.node;
+            const layer = current.layer.node;
             const ctx = layer.getContext();
 
             ctx.globalCompositeOperation = 'destination-out';
